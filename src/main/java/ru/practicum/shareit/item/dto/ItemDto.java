@@ -5,7 +5,6 @@ import lombok.Data;
 
 
 @Data
-//@RequiredArgsConstructor
 @AllArgsConstructor
 public class ItemDto {
     private String name = null;

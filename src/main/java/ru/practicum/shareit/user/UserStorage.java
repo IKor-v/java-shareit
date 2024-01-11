@@ -9,7 +9,7 @@ public interface UserStorage {
 
     User getUser(long userId);
 
-    void delUser(long UserId);
+    void delUser(long userId);
 
     Collection<User> getAllUsers();
 }

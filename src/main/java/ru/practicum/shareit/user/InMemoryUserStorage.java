@@ -61,10 +61,6 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     public User getUser(long userId) {
-/*        if (userId == 0) {
-            return new User(1L, "Baba", "e@mail.ru");
-        } //тест.удалить*/
-
         User user = users.get(userId);
         if (user != null) {
             return user;

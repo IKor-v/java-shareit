@@ -11,7 +11,7 @@ import java.util.Collection;
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private final long ANY_ID = 0;
+    private final long anyId = 0;
 
     @Autowired
     public UserService(UserStorage userStorage) {
@@ -23,7 +23,7 @@ public class UserService {
             throw new ValidationException("Не удалось добавить пользователя: " + userDto.toString());
         }
 
-        return userStorage.createUser(UserMapper.toUser(userDto, ANY_ID));
+        return userStorage.createUser(UserMapper.toUser(userDto, anyId));
     }
 
     public User updateUser(UserDto userDto, long userId) {

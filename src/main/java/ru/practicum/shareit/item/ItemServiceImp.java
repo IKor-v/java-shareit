@@ -18,7 +18,7 @@ import java.util.Collection;
 public class ItemServiceImp implements ItemService {
     private final ItemStorage itemStorage;
     private final UserService userService;
-    private final long ANY_ID = 0;
+    private final long anyId = 0;
 
     @Autowired
     public ItemServiceImp(ItemStorage itemStorage, UserService userService) {
@@ -29,7 +29,7 @@ public class ItemServiceImp implements ItemService {
     @Override
     public Item addItem(long userId, ItemDto itemDto) {
         validationItem(itemDto);
-        return itemStorage.addItem(ItemMapper.toItem(itemDto, userService.getUser(userId), ANY_ID));
+        return itemStorage.addItem(ItemMapper.toItem(itemDto, userService.getUser(userId), anyId));
     }
 
     @Override
