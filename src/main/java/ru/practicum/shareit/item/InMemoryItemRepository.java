@@ -60,14 +60,13 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Collection<Item> searchForText(String text) {
-        Collection<Item> result = new ArrayList<>();
         return  items.values().stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text) || (item.getDescription().toLowerCase().contains(text))))
                 .filter(item -> (item.isAvailable()))
                 .collect(Collectors.toList());
     }
 
-    public long getLastId() {
+    private long getLastId() {
         return lastId++;
     }
 }
