@@ -7,48 +7,50 @@ import ru.practicum.shareit.user.dto.UserMapper;
 
 import javax.validation.ValidationException;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
     private final long anyId = 0;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public User createUser(UserDto userDto) {
+    public UserDto createUser(UserDto userDto) {
         if (!validationUser(userDto)) {
             throw new ValidationException("Не удалось добавить пользователя: " + userDto.toString());
         }
 
-        return userStorage.createUser(UserMapper.toUser(userDto, anyId));
+        return UserMapper.toUserDto(userRepository.createUser(UserMapper.toUser(userDto, anyId)));
     }
 
-    public User updateUser(UserDto userDto, long userId) {
-        if (userDto.getName() == "") {
-            userDto.setName("Noname");
+    public UserDto updateUser(UserDto userDto, long userId) {
+        User oldUser = userRepository.getUser(userId);
+        if (userDto.getName() == null) {
+            userDto.setName(oldUser.getName());
         }
-        if (userDto.getEmail() == "") {
-            userDto.setEmail("no@no");
+        if (userDto.getEmail() == null) {
+            userDto.setEmail(oldUser.getEmail());
         }
         if (!validationUser(userDto)) {
             throw new ValidationException("Не удалось обновить данные пользователя");
         }
-        return userStorage.updateUser(UserMapper.toUser(userDto, userId));
+        return UserMapper.toUserDto(userRepository.updateUser(UserMapper.toUser(userDto, userId)));
     }
 
-    public User getUser(long userId) {
-        return userStorage.getUser(userId);
+    public UserDto getUser(long userId) {
+        return UserMapper.toUserDto(userRepository.getUser(userId));
     }
 
     public void delUser(long userId) {
-        userStorage.delUser(userId);
+        userRepository.delUser(userId);
     }
 
-    public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    public Collection<UserDto> getAllUsers() {
+        return userRepository.getAllUsers().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
 

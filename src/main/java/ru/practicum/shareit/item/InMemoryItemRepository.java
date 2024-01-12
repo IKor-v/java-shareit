@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
+
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Primary
-@Component
-public class InMemoryItemStorage implements ItemStorage {
+
+@Repository
+public class InMemoryItemRepository implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     private long lastId = 1;
 
@@ -60,12 +61,10 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public Collection<Item> searchForText(String text) {
         Collection<Item> result = new ArrayList<>();
-        for (Item item : items.values()) {
-            if (((item.getName().toLowerCase().contains(text)) || (item.getDescription().toLowerCase().contains(text))) && (item.isAvailable())) {
-                result.add(item);
-            }
-        }
-        return result;
+        return  items.values().stream()
+                .filter(item -> (item.getName().toLowerCase().contains(text) || (item.getDescription().toLowerCase().contains(text))))
+                .filter(item -> (item.isAvailable()))
+                .collect(Collectors.toList());
     }
 
     public long getLastId() {

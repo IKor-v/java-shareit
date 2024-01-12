@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.groupvalid.CreateInfo;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.Collection;
 
@@ -28,26 +29,26 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody UserDto userDto) throws ValidationException {
-        User newUser = userService.createUser(userDto);
+    public UserDto createUser(@Validated(CreateInfo.class) @RequestBody UserDto userDto) throws ValidationException {
+        UserDto newUser = userService.createUser(userDto);
         log.info("Добавлен пользователь с id = " + newUser.getId());
         return newUser;
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@PathVariable Long userId, @Valid @RequestBody UserDto userDto) throws ValidationException {
-        User updateUser = userService.updateUser(userDto, userId);
+    public UserDto updateUser(@PathVariable Long userId, @Validated @RequestBody UserDto userDto) throws ValidationException {
+        UserDto updateUser = userService.updateUser(userDto, userId);
         log.info("Данные пользователя с id = " + updateUser.getId() + " обновленны.");
         return updateUser;
     }
 
     @GetMapping("/{userId}")
-    public User getUserForId(@PathVariable long userId) {
+    public UserDto getUserForId(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 
     @GetMapping
-    public Collection<User> getAllUsers() {
+    public Collection<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
 

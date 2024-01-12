@@ -5,7 +5,7 @@ import ru.practicum.shareit.user.User;
 
 import java.util.Collection;
 
-public interface ItemStorage {
+public interface ItemRepository {
     Item addItem(Item item);
 
     Item updateItem(Item item);

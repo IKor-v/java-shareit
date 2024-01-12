@@ -2,7 +2,7 @@ package ru.practicum.shareit.user;
 
 import java.util.Collection;
 
-public interface UserStorage {
+public interface UserRepository {
     User createUser(User user);
 
     User updateUser(User user);

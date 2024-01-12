@@ -1,40 +1,40 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.ValidationException;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
-@Primary
+
 @Service
 public class ItemServiceImp implements ItemService {
-    private final ItemStorage itemStorage;
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final long anyId = 0;
 
     @Autowired
-    public ItemServiceImp(ItemStorage itemStorage, UserService userService) {
-        this.itemStorage = itemStorage;
-        this.userService = userService;
+    public ItemServiceImp(ItemRepository itemRepository, UserRepository userRepository) {
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public Item addItem(long userId, ItemDto itemDto) {
+    public ItemDto addItem(long userId, ItemDto itemDto) {
         validationItem(itemDto);
-        return itemStorage.addItem(ItemMapper.toItem(itemDto, userService.getUser(userId), anyId));
+        return ItemMapper.toItemDto(itemRepository.addItem(ItemMapper.toItem(itemDto, userRepository.getUser(userId), anyId)));
     }
 
     @Override
-    public Item updateItem(long userId, long itemId, ItemDto itemDto) {
-        Item oldItem = itemStorage.getItemForId(itemId);
+    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
+        Item oldItem = itemRepository.getItemForId(itemId);
         if (userId != oldItem.getOwner().getId()) {
             throw new NotFoundException("Нельзя обновить информацию о вещи другого человека");
         }
@@ -47,28 +47,33 @@ public class ItemServiceImp implements ItemService {
         if (itemDto.getAvailable() == null) {
             itemDto.setAvailable(oldItem.isAvailable());
         }
-        return itemStorage.updateItem(ItemMapper.toItem(itemDto, userService.getUser(userId), itemId));
+        return ItemMapper.toItemDto(itemRepository.updateItem(ItemMapper.toItem(itemDto, userRepository.getUser(userId), itemId)));
     }
 
     @Override
-    public Item getItemForId(long userId, long itemId) {
-        return itemStorage.getItemForId(itemId);
+    public ItemDto getItemForId(long userId, long itemId) {
+        return ItemMapper.toItemDto(itemRepository.getItemForId(itemId));
     }
 
     @Override
-    public Collection<Item> getAllMyItem(long userId) {
-        return itemStorage.getAllMyItem(userService.getUser(userId));
+    public Collection<ItemDto> getAllMyItem(long userId) {
+        Collection<Item> result = itemRepository.getAllMyItem(userRepository.getUser(userId));
+        return result.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<Item> searchForText(String text) {
+    public Collection<ItemDto> searchForText(String text) {
         if ((text == null) || (text.isBlank())) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
-        return itemStorage.searchForText(text.toLowerCase());
+        return itemRepository.searchForText(text.toLowerCase()).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
-    private boolean validationItem(ItemDto itemDto) {
+    private void validationItem(ItemDto itemDto) {
         String message = "Ошибка валидации вещи: ";
         if (itemDto == null) {
             message += "переданно пустое тело.";
@@ -81,7 +86,7 @@ public class ItemServiceImp implements ItemService {
         } else if (itemDto.getDescription() == null) {
             message += "не заполненно описание.";
         } else {
-            return true;
+            return;
         }
         throw new ValidationException(message);
     }
