@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.groupvalid.CreateInfo;
+import ru.practicum.shareit.groupvalid.UpdateInfo;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.ValidationException;
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId, @Validated @RequestBody UserDto userDto) throws ValidationException {
+    public UserDto updateUser(@PathVariable Long userId, @Validated(UpdateInfo.class) @RequestBody UserDto userDto) throws ValidationException {
         UserDto updateUser = userService.updateUser(userDto, userId);
         log.info("Данные пользователя с id = " + updateUser.getId() + " обновленны.");
         return updateUser;

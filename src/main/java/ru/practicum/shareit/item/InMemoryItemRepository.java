@@ -60,7 +60,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Collection<Item> searchForText(String text) {
-        return  items.values().stream()
+        return items.values().stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text) || (item.getDescription().toLowerCase().contains(text))))
                 .filter(item -> (item.isAvailable()))
                 .collect(Collectors.toList());
