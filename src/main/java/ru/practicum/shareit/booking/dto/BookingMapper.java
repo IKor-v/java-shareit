@@ -26,10 +26,10 @@ public class BookingMapper {
         String start = booking.getStart().toString();
         String end = booking.getEnd().toString();
         if (start.length() < 19) {
-            start+=":00";
+            start = start + ":00";
         }
         if (end.length() < 19) {
-            end+=":00";
+            end = end + ":00";
         }
         return new BookingDtoOut(
                 booking.getId(),
