@@ -7,6 +7,8 @@ import ru.practicum.shareit.user.User;
 import java.util.List;
 
 public interface DatabaseItemRepository extends JpaRepository<Item, Long> {
+
     List<Item> findByOwner(User user);
+
     List<Item> findByAvailableTrueAndDescriptionContainingIgnoreCase(String text);
 }
