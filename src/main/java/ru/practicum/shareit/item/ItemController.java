@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.groupvalid.CreateInfo;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.ValidationException;
@@ -64,6 +65,13 @@ public class ItemController {
     @GetMapping(value = "/search") // items/search?text={text}
     public Collection<ItemDto> searchForText(@RequestParam String text) {
         return itemService.searchForText(text);
+    }
+
+    @PostMapping(value = "/{itemId}/comment")  //POST /items/{itemId}/comment
+    public CommentDto addComment(@RequestHeader(headerUserId) long userId, @PathVariable long itemId, @Validated @RequestBody CommentDto commentDto) {
+        CommentDto result = itemService.addComment(userId, itemId, commentDto);
+        log.info("Комментарий добавлен");
+        return result;
     }
 
 }

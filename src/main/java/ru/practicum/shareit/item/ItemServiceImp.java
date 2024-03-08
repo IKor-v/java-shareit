@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -71,6 +72,11 @@ public class ItemServiceImp implements ItemService {
         return itemRepository.searchForText(text.toLowerCase()).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
+        return null;
     }
 
     private void validationItem(ItemDto itemDto) {
