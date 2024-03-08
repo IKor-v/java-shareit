@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -68,6 +69,7 @@ public class ItemServiceImpDb implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto addItem(long userId, ItemDto itemDto) {
         validationItem(itemDto);
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не удалось найти хозяина вещи, данные не верны"));
@@ -75,6 +77,7 @@ public class ItemServiceImpDb implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
         Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Не удалось найти такую вещь, данные не верны"));
         if (userId != oldItem.getOwner().getId()) {
@@ -148,6 +151,7 @@ public class ItemServiceImpDb implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
 
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Не удалось найти предмет с id = " + itemId));

@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -23,6 +24,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto userDto) {
         if (!validationUser(userDto)) {
             throw new ValidationException("Не удалось добавить пользователя: " + userDto.toString());
@@ -48,7 +50,7 @@ public class UserServiceImp implements UserService {
         }
         try {
             return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto, userId)));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new ConflictException("Не удалось обновить данные пользователя, данные не верны");
         }
     }
@@ -63,6 +65,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    @Transactional
     public void delUser(long userId) {
         userRepository.deleteById(userId);
     }
