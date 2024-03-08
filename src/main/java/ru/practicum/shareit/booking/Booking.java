@@ -18,8 +18,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
-/*@Data
-@RequiredArgsConstructor*/
 @Entity
 @Table(name = "bookings", schema = "public")
 @Getter
@@ -47,8 +45,8 @@ public class Booking {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Item)) return false;
-        return id != null && id.equals(((Item) o).getId());
+        if (!(o instanceof Booking)) return false;
+        return id != null && id.equals(((Booking) o).getId());
     }
 
     @Override

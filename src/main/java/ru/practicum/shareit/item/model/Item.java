@@ -16,8 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 
-/*@Data
-@AllArgsConstructor*/
+
 @Entity
 @Table(name = "items", schema = "public")
 @Getter

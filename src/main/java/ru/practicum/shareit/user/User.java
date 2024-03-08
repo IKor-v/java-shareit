@@ -12,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 
-//@Data
-//@AllArgsConstructor
 @Entity
 @Table(name = "users", schema = "public")
 @Getter
