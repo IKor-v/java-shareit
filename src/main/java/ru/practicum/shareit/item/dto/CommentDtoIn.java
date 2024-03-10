@@ -10,11 +10,9 @@ import java.time.LocalDateTime;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
+public class CommentDtoIn {
     private Long id;
-    private Long authorId;
     private String authorName;
-    private Long itemId;
     @NotBlank
     private String text;
     private String created = LocalDateTime.now().toString();

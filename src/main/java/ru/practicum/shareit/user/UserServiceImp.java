@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ConflictException;
@@ -13,13 +12,13 @@ import javax.validation.ValidationException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Primary
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImp implements UserService {
-    private final DatabaseUserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImp(DatabaseUserRepository userRepository) {
+    public UserServiceImp(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -37,8 +36,9 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto updateUser(UserDto userDto, long userId) {
-        User oldUser = userRepository.findById(userId).get();
+        User oldUser = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Нельзя обновить пользователя, которого не существует."));
         if (userDto.getName() == null) {
             userDto.setName(oldUser.getName());
         }
@@ -49,8 +49,8 @@ public class UserServiceImp implements UserService {
             throw new ValidationException("Не удалось обновить данные пользователя");
         }
         try {
-            return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto, userId)));
-        } catch (RuntimeException e) {
+            return UserMapper.toUserDto(userRepository.saveAndFlush(UserMapper.toUser(userDto, userId)));
+        } catch (Exception e) {
             throw new ConflictException("Не удалось обновить данные пользователя, данные не верны");
         }
     }
@@ -58,7 +58,7 @@ public class UserServiceImp implements UserService {
     @Override
     public UserDto getUser(long userId) {
         try {
-            return UserMapper.toUserDto(userRepository.findById(userId).get());
+            return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не удалось найти такого пользователя.")));
         } catch (Exception e) {
             throw new NotFoundException("Такой пользователь не найден");
         }

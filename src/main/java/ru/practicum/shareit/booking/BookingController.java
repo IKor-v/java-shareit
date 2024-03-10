@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingDtoOut addBooking(@RequestHeader(headerUserId) long userId, @RequestBody BookingDto bookingDtoIn) {
+    public BookingDtoOut addBooking(@RequestHeader(headerUserId) long userId, @RequestBody BookingDtoIn bookingDtoIn) {
         BookingDtoOut result = bookingService.addBooking(bookingDtoIn, userId);
         log.info("Бронирование создано");
         return result;
@@ -50,9 +50,9 @@ public class BookingController {
         return result;
     }
 
-    @GetMapping //GET /bookings?state={state}
-    public Collection<BookingDtoOut> getAllBookingByUser(@RequestHeader(headerUserId) long userId, @RequestParam(required = false, defaultValue = "ALL") String state) {
-        Collection<BookingDtoOut> result = bookingService.getAllBookingByUser(userId, state);
+    @GetMapping   //GET /bookings?state={state}
+    public Collection<BookingDtoOut> getAllBookingByBooker(@RequestHeader(headerUserId) long userId, @RequestParam(required = false, defaultValue = "ALL") String state) {
+        Collection<BookingDtoOut> result = bookingService.getAllBookingByBooker(userId, state);
         log.info("Просмотрен список всех бронирований пользователя с id =" + userId);
         return result;
     }

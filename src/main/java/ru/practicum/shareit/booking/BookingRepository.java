@@ -4,14 +4,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Collection<Booking> findByBookerIdOrderByStartDesc(Long id);
 
-    Collection<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime now);//String string);
+    Collection<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime now);
 
-    Collection<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime now);//String string);
+    Collection<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime now);
 
     Collection<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(Long id, LocalDateTime start, LocalDateTime end);
 
@@ -31,4 +32,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Collection<Booking> findByItemOwnerIdAndStatusIsOrderByStartDesc(Long userId, BookingStatus status);
 
+    Collection<Booking> findByStatusInOrderByStartDesc(List<BookingStatus> statusList);
 }

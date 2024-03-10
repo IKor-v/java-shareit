@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -8,9 +10,10 @@ import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.time.LocalDateTime;
 
+@UtilityClass
 public class BookingMapper {
 
-    public static BookingDto toBookingDto(Booking booking) {
+    public BookingDto toBookingDto(Booking booking) {
 
         return new BookingDto(
                 booking.getId(),
@@ -22,7 +25,7 @@ public class BookingMapper {
         );
     }
 
-    public static BookingDtoOut toBookingDtoOut(Booking booking) {
+    public BookingDtoOut toBookingDtoOut(Booking booking) {
         String start = booking.getStart().toString();
         String end = booking.getEnd().toString();
         if (start.length() < 19) {
@@ -41,14 +44,13 @@ public class BookingMapper {
         );
     }
 
-
-    public static Booking toBooking(BookingDto bookingDto, User booker, Item item) {
+    public Booking toBookingFromBookingDtoIn(BookingDtoIn bookingDtoIn, User booker, Item item) {
         Booking result = new Booking();
-        result.setStart(LocalDateTime.parse(bookingDto.getStart()));
-        result.setEnd(LocalDateTime.parse(bookingDto.getEnd()));
+        result.setStart(LocalDateTime.parse(bookingDtoIn.getStart()));
+        result.setEnd(LocalDateTime.parse(bookingDtoIn.getEnd()));
         result.setItem(item);
         result.setBooker(booker);
-        result.setStatus(bookingDto.getStatus());
+        result.setStatus(BookingStatus.WAITING);
         return result;
     }
 }

@@ -3,30 +3,31 @@ package ru.practicum.shareit.booking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.DatabaseItemRepository;
-import ru.practicum.shareit.item.ItemServiceImpDb;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemServiceImp;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.DatabaseUserRepository;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final DatabaseUserRepository userRepository;
-    private final DatabaseItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Autowired
-    public BookingServiceImpl(BookingRepository bookingRepository, DatabaseUserRepository userRepository, DatabaseItemRepository itemRepository) {
+    public BookingServiceImpl(BookingRepository bookingRepository, UserRepository userRepository, ItemRepository itemRepository) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
@@ -35,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingDtoOut addBooking(BookingDto bookingDto, Long userId) {
+    public BookingDtoOut addBooking(BookingDtoIn bookingDto, Long userId) {
         validationBooking(bookingDto);
         Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() -> new NotFoundException("Не найден предмет с id = " + bookingDto.getItemId()));
         if (!item.isAvailable()) {
@@ -43,8 +44,8 @@ public class BookingServiceImpl implements BookingService {
         } else if (userId.equals(item.getOwner().getId())) {
             throw new NotFoundException("Нельзя бронировать свои вещи.");
         }
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
-        Booking booking = BookingMapper.toBooking(bookingDto, user, item);
+        Booking booking = BookingMapper.toBookingFromBookingDtoIn(bookingDto,
+                userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId)), item);
         return BookingMapper.toBookingDtoOut(bookingRepository.save(booking));
     }
 
@@ -71,18 +72,19 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDtoOut getBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Не найдено бронирование с id = " + bookingId));
-        BookingDtoOut result = null;
+        BookingDtoOut result;
         if ((userId.equals(booking.getBooker().getId())) || (userId.equals(booking.getItem().getOwner().getId()))) {
             result = BookingMapper.toBookingDtoOut(booking);
         } else {
             throw new NotFoundException("Просматривать подробную информацию о бронировании могут только его участники");
         }
-        result.setItem(ItemServiceImpDb.getLastAndNextBooking(result.getItem(), bookingRepository));
+        result.setItem(ItemServiceImp.getLastAndNextBooking(result.getItem(),
+                bookingRepository.findByItemIdAndStatusInOrderByStartDesc(result.getId(), Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED)), true));
         return result;
     }
 
     @Override
-    public Collection<BookingDtoOut> getAllBookingByUser(Long userId, String state) {
+    public Collection<BookingDtoOut> getAllBookingByBooker(Long userId, String state) {
         BookingState bookingState;
         try {
             bookingState = BookingState.valueOf(state);
@@ -90,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Unknown state: UNSUPPORTED_STATUS");
         }
         Collection<Booking> result = null;
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
         switch (bookingState) {
             case ALL: {
                 result = bookingRepository.findByBookerIdOrderByStartDesc(userId);
@@ -115,12 +117,13 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
+        Collection<Booking> bookings = bookingRepository.findByStatusInOrderByStartDesc(Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED));
+
         return result.stream()
                 .map(BookingMapper::toBookingDtoOut)
-                .map(bookingDtoOut -> {
-                    ItemDto itemDto = ItemServiceImpDb.getLastAndNextBooking(bookingDtoOut.getItem(), bookingRepository);
+                .peek(bookingDtoOut -> {
+                    ItemDto itemDto = ItemServiceImp.getLastAndNextBooking(bookingDtoOut.getItem(), bookings, false); //bookingRepository);
                     bookingDtoOut.setItem(itemDto);
-                    return bookingDtoOut;
                 })
                 .collect(Collectors.toList());
     }
@@ -135,7 +138,7 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Unknown state: UNSUPPORTED_STATUS");
         }
         Collection<Booking> result = null;
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
         switch (bookingState) {
             case ALL: {
                 result = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
@@ -158,21 +161,18 @@ public class BookingServiceImpl implements BookingService {
                 result = bookingRepository.findByItemOwnerIdAndStatusIsOrderByStartDesc(userId, BookingStatus.valueOf(bookingState.toString()));
                 break;
             }
-
         }
-
-
+        Collection<Booking> bookings = bookingRepository.findByStatusInOrderByStartDesc(Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED));
         return result.stream()
                 .map(BookingMapper::toBookingDtoOut)
-                .map(bookingDtoOut -> {
-                    ItemDto itemDto = ItemServiceImpDb.getLastAndNextBooking(bookingDtoOut.getItem(), bookingRepository);
+                .peek(bookingDtoOut -> {
+                    ItemDto itemDto = ItemServiceImp.getLastAndNextBooking(bookingDtoOut.getItem(), bookings, false);
                     bookingDtoOut.setItem(itemDto);
-                    return bookingDtoOut;
                 })
                 .collect(Collectors.toList());
     }
 
-    private void validationBooking(BookingDto bookingDto) {
+    private void validationBooking(BookingDtoIn bookingDto) {
         String message = "Ошибка валидации вещи: ";
         if (bookingDto == null) {
             message += "переданно пустое тело.";

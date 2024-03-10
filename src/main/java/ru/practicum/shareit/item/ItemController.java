@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.groupvalid.CreateInfo;
-import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoIn;
 
 import javax.validation.ValidationException;
 import java.util.Collection;
@@ -35,15 +36,15 @@ public class ItemController {
 
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader(headerUserId) long userId, @Validated(CreateInfo.class) @RequestBody ItemDto itemDto) throws ValidationException {
-        ItemDto result = itemService.addItem(userId, itemDto);
+    public ItemDtoIn addItem(@RequestHeader(headerUserId) long userId, @Validated(CreateInfo.class) @RequestBody ItemDtoIn itemDtoIn) throws ValidationException {
+        ItemDtoIn result = itemService.addItem(userId, itemDtoIn);
         log.info("Добавили вещь с id = " + result.getId());
         return result;
     }
 
     @PatchMapping(value = "/{itemId}")
-    public ItemDto updateItem(@RequestHeader(headerUserId) long userId, @PathVariable long itemId, @Validated @RequestBody ItemDto itemDto) throws ValidationException {
-        ItemDto result = itemService.updateItem(userId, itemId, itemDto);
+    public ItemDtoIn updateItem(@RequestHeader(headerUserId) long userId, @PathVariable long itemId, @Validated @RequestBody ItemDtoIn itemDtoIn) throws ValidationException {
+        ItemDtoIn result = itemService.updateItem(userId, itemId, itemDtoIn);
         log.info("Обновили вещь с id = " + result.getId());
         return result;
     }
@@ -68,8 +69,8 @@ public class ItemController {
     }
 
     @PostMapping(value = "/{itemId}/comment")  //POST /items/{itemId}/comment
-    public CommentDto addComment(@RequestHeader(headerUserId) long userId, @PathVariable long itemId, @Validated @RequestBody CommentDto commentDto) {
-        CommentDto result = itemService.addComment(userId, itemId, commentDto);
+    public CommentDtoIn addComment(@RequestHeader(headerUserId) long userId, @PathVariable long itemId, @Validated @RequestBody CommentDtoIn commentDto) {
+        CommentDtoIn result = itemService.addComment(userId, itemId, commentDto);
         log.info("Комментарий добавлен");
         return result;
     }
