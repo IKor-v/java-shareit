@@ -24,4 +24,10 @@ public class ErrorHandler {
     public ErrorResponse otherException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse conflictException(final ConflictException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }

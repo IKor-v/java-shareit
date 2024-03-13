@@ -1,27 +1,56 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserMapper;
 
+import java.util.ArrayList;
+
+@UtilityClass
 public class ItemMapper {
-    public static ItemDto toItemDto(Item item) {
+    public ItemDto toItemDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.isAvailable(),
-                item.getRequest() != null ? item.getRequest().getId() : null
+                UserMapper.toUserDto(item.getOwner()),
+                null,
+                null,
+                null,
+                new ArrayList<>()
         );
     }
 
-    public static Item toItem(ItemDto itemDto, User owner, long itemId) {
-        return new Item(
-                itemId,
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                owner,
-                null
+    public Item toItem(ItemDtoIn itemDto, User owner) {
+        Item result = new Item();
+        result.setName(itemDto.getName());
+        result.setDescription(itemDto.getDescription());
+        result.setAvailable(itemDto.getAvailable());
+        result.setOwner(owner);
+        result.setRequest(null);
+        return result;
+    }
+
+    public Item toItem(ItemDtoIn itemDto, User owner, Long itemId) {
+        Item result = new Item();
+        result.setId(itemId);
+        result.setName(itemDto.getName());
+        result.setDescription(itemDto.getDescription());
+        result.setAvailable(itemDto.getAvailable());
+        result.setOwner(owner);
+        result.setRequest(null);
+        return result;
+    }
+
+    public ItemDtoIn toItemDtoIn(Item item) {
+        return new ItemDtoIn(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.isAvailable()
         );
     }
+
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.item.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,35 +11,33 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
-
-/*@Data
-@RequiredArgsConstructor
-@AllArgsConstructor*/
 @Entity
-@Table(name = "requests", schema = "public")
+@Table(name = "comments", schema = "public")
 @Getter
 @Setter
 @ToString
-public class ItemRequest {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "text", nullable = false)
-    private String description;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User requestor;
-    private LocalDateTime created = LocalDateTime.now(); //временно
-
+    @Column(name = "text")
+    private String text;
+    @Column(name = "created")
+    private LocalDateTime created;
+    @OneToOne(fetch = FetchType.LAZY)
+    private User author;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Item item;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ItemRequest)) return false;
-        return id != null && id.equals(((ItemRequest) o).getId());
+        if (!(o instanceof Comment)) return false;
+        return id != null && id.equals(((Comment) o).getId());
     }
 
     @Override
