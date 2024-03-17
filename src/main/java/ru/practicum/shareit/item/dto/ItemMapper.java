@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserMapper;
 
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 @UtilityClass
 public class ItemMapper {
     public ItemDto toItemDto(Item item) {
-        return new ItemDto(
+        ItemDto result = new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -21,20 +23,34 @@ public class ItemMapper {
                 null,
                 new ArrayList<>()
         );
+        if (item.getRequest() != null) {
+            result.setRequest(ItemRequestMapper.toItemRequestDto(item.getRequest()));
+        }
+        return result;
     }
 
-    public Item toItem(ItemDtoIn itemDto, User owner) {
-        Item result = new Item();
+    public Item toItem(ItemDtoIn itemDto, User owner, ItemRequest itemRequest) {
+        Item result = new Item();/*.builder().name(itemDto.getName()).description(itemDto.getDescription())
+                .available(itemDto.getAvailable()).owner(owner).request(itemRequest)
+                .build();*/
         result.setName(itemDto.getName());
         result.setDescription(itemDto.getDescription());
         result.setAvailable(itemDto.getAvailable());
         result.setOwner(owner);
-        result.setRequest(null);
+        if (itemRequest != null) {
+            result.setRequest(itemRequest);
+        }
+        if (itemDto.getId() != null) {
+            result.setId(itemDto.getId());
+        }
         return result;
     }
 
     public Item toItem(ItemDtoIn itemDto, User owner, Long itemId) {
-        Item result = new Item();
+        Item result = new Item();/*.builder().id(itemId).name(itemDto.getName()).description(itemDto.getDescription())
+                .available(itemDto.getAvailable()).owner(owner).request(null)
+                .build();*/
+
         result.setId(itemId);
         result.setName(itemDto.getName());
         result.setDescription(itemDto.getDescription());
@@ -45,11 +61,17 @@ public class ItemMapper {
     }
 
     public ItemDtoIn toItemDtoIn(Item item) {
+        ItemRequest itemRequest = item.getRequest();
+        Long requestId = null;
+        if (itemRequest != null) {
+            requestId = itemRequest.getId();
+        }
         return new ItemDtoIn(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.isAvailable()
+                item.isAvailable(),
+                requestId
         );
     }
 

@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -11,7 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users", schema = "public")
 @Getter
@@ -31,7 +34,7 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
-        return id != null && id.equals(((User) o).getId());
+        return email != null && email.equals(((User) o).getEmail());
     }
 
     @Override

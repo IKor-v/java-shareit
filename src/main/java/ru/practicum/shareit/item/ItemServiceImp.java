@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -8,6 +10,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.CommentMapper;
@@ -16,15 +19,18 @@ import ru.practicum.shareit.item.dto.ItemDtoIn;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.ItemRequestServiceImpl;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -35,15 +41,18 @@ public class ItemServiceImp implements ItemService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository requestRepository;
 
 
     @Autowired
     public ItemServiceImp(ItemRepository itemRepository, BookingRepository bookingRepository,
-                          UserRepository userRepository, CommentRepository commentRepository) {
+                          UserRepository userRepository, CommentRepository commentRepository,
+                          ItemRequestRepository requestRepository) {
         this.itemRepository = itemRepository;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.requestRepository = requestRepository;
     }
 
     public static ItemDto getLastAndNextBooking(ItemDto itemDto, Collection<Booking> bookings, boolean isSort) {
@@ -83,7 +92,12 @@ public class ItemServiceImp implements ItemService {
     public ItemDtoIn addItem(long userId, ItemDtoIn itemDtoIn) {
         validationItem(itemDtoIn);
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не удалось найти хозяина вещи, данные не верны"));
-        return ItemMapper.toItemDtoIn(itemRepository.save(ItemMapper.toItem(itemDtoIn, owner)));
+        Long requestId = itemDtoIn.getRequestId();
+        ItemRequest itemRequest = null;
+        if (requestId != null) {
+            itemRequest = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Не удалось найти запрос с id = " + requestId));
+        }
+        return ItemMapper.toItemDtoIn(itemRepository.save(ItemMapper.toItem(itemDtoIn, owner, itemRequest)));
     }
 
     @Override
@@ -124,24 +138,27 @@ public class ItemServiceImp implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> getAllMyItem(long userId) {
+    public List<ItemDto> getAllMyItem(long userId, Integer from, Integer size) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не удалось найти пользователя с id = " + userId));
-        Collection<Comment> comments = commentRepository.findByItemOwnerIdOrderById(userId);
-        Collection<CommentDto> com = comments.stream()
+        List<Comment> comments = commentRepository.findByItemOwnerIdOrderById(userId);
+        List<CommentDto> com = comments.stream()
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList());
 
-        Collection<ItemDto> result2 = new ArrayList<>();
+        List<ItemDto> result2 = new ArrayList<>();
 
-        Collection<Booking> bookings = bookingRepository.findByStatusInOrderByStartDesc(Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED));
-        Collection<Item> result = itemRepository.findByOwner(user);
-        Collection<ItemDto> result1 = result.stream()
+        List<Booking> bookings = bookingRepository.findByStatusInOrderByStartDesc(Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED));
+
+        ItemRequestServiceImpl.checkPageableInfo(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Item> result = itemRepository.findByOwnerId(user.getId(), pageable);
+        List<ItemDto> result1 = result.stream()
                 .map(ItemMapper::toItemDto)
                 .map(itemDto -> getLastAndNextBooking(itemDto, bookings, false))
                 .collect(Collectors.toList());
 
         for (ItemDto itemDto : result1) {
-            Collection<CommentDto> waiting = new ArrayList<>();
+            List<CommentDto> waiting = new ArrayList<>();
             for (CommentDto commentDto : com) {
                 if (itemDto.getId().equals(commentDto.getItemId())) {
                     waiting.add(commentDto);
@@ -156,11 +173,13 @@ public class ItemServiceImp implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> searchForText(String text) {
+    public List<ItemDto> searchForText(String text, Integer from, Integer size) {
         if ((text == null) || (text.isBlank())) {
             return Collections.emptyList();
         }
-        return itemRepository.findByAvailableTrueAndDescriptionContainingIgnoreCase(text).stream()
+        ItemRequestServiceImpl.checkPageableInfo(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
+        return itemRepository.findByAvailableTrueAndDescriptionContainingIgnoreCase(text, pageable).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
