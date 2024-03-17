@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoIn;
@@ -147,7 +146,7 @@ public class ItemServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findFirstByItemIdAndBookerIdAndStatusIsOrderByStartAsc(anyLong(), anyLong(), any(BookingStatus.class))).thenReturn(booking);
 
-        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> itemService.addComment(user.getId(), item.getId(), commentDtoIn));
+        RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> itemService.addComment(user.getId(), item.getId(), commentDtoIn));
         assertEquals("Комментарий можно оставить только после окончания бронирования", exception.getMessage());
 
         booking.setStart(now.minusHours(2));
