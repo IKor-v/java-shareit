@@ -190,14 +190,12 @@ public class ItemServiceImp implements ItemService {
         validationComment(commentDtoIn);
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Не удалось найти предмет с id = " + itemId));
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не удалось найти пользователя с id = " + userId));
-        //commentDtoIn.setAuthorId(userId);
         commentDtoIn.setAuthorName(user.getName());
-        //commentDtoIn.setItemId(itemId);
         Booking booking = bookingRepository.findFirstByItemIdAndBookerIdAndStatusIsOrderByStartAsc(itemId, userId, BookingStatus.APPROVED);
-        if ((booking != null) && (booking.getEnd().isBefore/*(commentDtoIn.getCreated()))){*/(LocalDateTime.parse(commentDtoIn.getCreated())))) {
+        if ((booking != null) && (booking.getEnd().isBefore(LocalDateTime.parse(commentDtoIn.getCreated())))) {
             return CommentMapper.toCommentDtoIn(commentRepository.save(CommentMapper.toComment(commentDtoIn, user, item)));
         }
-        throw new ValidationException("Комментарий можно оставить только после окончания бронирования");
+        throw new RuntimeException("Комментарий можно оставить только после окончания бронирования");
     }
 
 
