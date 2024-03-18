@@ -92,9 +92,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         checkUserExist(userId);
         ItemRequest itemRequest = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Не найден запрос с id = " + requestId));
         List<ItemDtoIn> items = itemRepository.findAllByRequestId(requestId).stream().map(ItemMapper::toItemDtoIn).collect(Collectors.toList());
-        ItemRequestDtoOut result = ItemRequestMapper.toItemRequestDtoOut(itemRequest, items);
-        //return ItemRequestMapper.toItemRequestDto(itemRequest);
-        return result;
+        return ItemRequestMapper.toItemRequestDtoOut(itemRequest, items);
     }
 
     private void checkUserExist(Long userId) {

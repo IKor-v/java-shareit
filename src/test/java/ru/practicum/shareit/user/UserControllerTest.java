@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
     private final UserDto userDto = new UserDto(1L, "Link", "spuderman@man.com");
-    private final User user = new User();
+    private final User user = new User(1L, "Link", "spuderman@man.com");
     @Autowired
     ObjectMapper mapper;
     @Autowired
