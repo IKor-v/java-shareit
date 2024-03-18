@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,24 +28,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
+    private final User user = new User(1L, "Link", "spuderman@man.com");
     @Autowired
     ObjectMapper mapper;
+    LocalDateTime now = LocalDateTime.now();
+    private final ItemRequest itemRequest = new ItemRequest(1L, "description", user, now);
+    private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, itemRequest);
+    private final ItemRequestDtoOut itemRequestDtoOut = new ItemRequestDtoOut(1L, "description",
+            UserMapper.toUserDto(user), now, List.of(ItemMapper.toItemDtoIn(item)));
+    private final ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "description", UserMapper.toUserDto(user), now);
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private ItemRequestServiceImpl requestService;
 
-    LocalDateTime now = LocalDateTime.now();
-    private final User user = new User(1L, "Link", "spuderman@man.com");
-    private final ItemRequest itemRequest = new ItemRequest(1L, "description", user , now);
-    private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, itemRequest);
-
-    private final ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "description", UserMapper.toUserDto(user), now);
-    private final ItemRequestDtoOut itemRequestDtoOut = new ItemRequestDtoOut(1L, "description",
-            UserMapper.toUserDto(user), now, List.of(ItemMapper.toItemDtoIn(item)));
-
     @Test
-    void addRequestTest() throws Exception  {
+    void addRequestTest() throws Exception {
         when(requestService.addRequest(user.getId(), itemRequestDto)).thenReturn(itemRequestDto);
 
         mockMvc.perform(post("/requests")
@@ -59,8 +55,8 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemRequestDto.getId()), Long.class))
                 .andExpect(jsonPath("$.description", is(itemRequestDto.getDescription())));
-                //.andExpect(jsonPath("$.requestor", is(itemRequestDto.getRequestor())))
-                //.andExpect(jsonPath("$.created", is (itemRequestDto.getCreated().toString())));
+        //.andExpect(jsonPath("$.requestor", is(itemRequestDto.getRequestor())))
+        //.andExpect(jsonPath("$.created", is (itemRequestDto.getCreated().toString())));
 
     }
 

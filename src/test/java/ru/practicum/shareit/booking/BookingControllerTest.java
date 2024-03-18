@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,13 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
-    @Autowired
-    ObjectMapper mapper;
-    @Autowired
-    private MockMvc mockMvc;
-    @MockBean
-    private BookingServiceImpl bookingService;
-
     private final LocalDateTime now = LocalDateTime.now();
     private final User user = new User(1L, "Link", "spuderman@man.com");
     private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, null);
@@ -43,6 +34,12 @@ class BookingControllerTest {
             ItemMapper.toItemDto(item), UserMapper.toUserDto(user), BookingStatus.WAITING);
     private final Booking booking = new Booking(1L, now.plusMinutes(5), now.plusHours(1), item, user, BookingStatus.WAITING);
     private final BookingDtoIn bookingDtoIn = new BookingDtoIn(1L, now.plusMinutes(5).toString(), now.plusHours(1).toString());
+    @Autowired
+    ObjectMapper mapper;
+    @Autowired
+    private MockMvc mockMvc;
+    @MockBean
+    private BookingServiceImpl bookingService;
 
     @Test
     void addBooking() throws Exception {
@@ -64,7 +61,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void bookingApproved() throws Exception{
+    void bookingApproved() throws Exception {
         when(bookingService.bookingApproved(user.getId(), item.getId(), true)).thenReturn(bookingDtoOut);
 
         mockMvc.perform(patch("/bookings/1")
@@ -104,7 +101,7 @@ class BookingControllerTest {
     void getAllBookingByBooker() throws Exception {
         when(bookingService.getAllBookingByBooker(user.getId(), "ALL", 0, 50)).thenReturn(List.of(bookingDtoOut));
 
-        String result =mockMvc.perform(get("/bookings")
+        String result = mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", user.getId())
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,7 +116,7 @@ class BookingControllerTest {
     void getAllBookingByOwner() throws Exception {
         when(bookingService.getAllBookingByOwner(user.getId(), "ALL", 0, 50)).thenReturn(List.of(bookingDtoOut));
 
-        String result =mockMvc.perform(get("/bookings/owner")
+        String result = mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", user.getId())
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

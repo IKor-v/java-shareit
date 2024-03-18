@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.BookingServiceImpl;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -20,13 +19,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
+    private final User user = new User(1L, "Link", "spuderman@man.com");
+    LocalDateTime now = LocalDateTime.now();
+    private final ItemRequest itemRequest = new ItemRequest(1L, "description", user, now);
+    private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, itemRequest);
+    private final ItemRequestDtoOut itemRequestDtoOut = new ItemRequestDtoOut(1L, "description",
+            UserMapper.toUserDto(user), now, List.of(ItemMapper.toItemDtoIn(item)));
+    private final ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "description", UserMapper.toUserDto(user), now);
     @Mock
     private ItemRepository itemRepository;
     @Mock
@@ -38,20 +44,11 @@ class ItemRequestServiceImplTest {
     @InjectMocks
     private ItemRequestServiceImpl requestService;
 
-    LocalDateTime now = LocalDateTime.now();
-    private final User user = new User(1L, "Link", "spuderman@man.com");
-    private final ItemRequest itemRequest = new ItemRequest(1L, "description", user , now);
-    private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, itemRequest);
-
-    private final ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "description", UserMapper.toUserDto(user), now);
-    private final ItemRequestDtoOut itemRequestDtoOut = new ItemRequestDtoOut(1L, "description",
-            UserMapper.toUserDto(user), now, List.of(ItemMapper.toItemDtoIn(item)));
-
     @Test
-    void addRequestTest() throws Exception  {
+    void addRequestTest() throws Exception {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.save(any(ItemRequest.class))).thenReturn(itemRequest);
-        ItemRequestDto result = requestService.addRequest(user.getId(),itemRequestDto);
+        ItemRequestDto result = requestService.addRequest(user.getId(), itemRequestDto);
 
         assertEquals(itemRequestDto.getDescription(), result.getDescription());
         assertEquals(itemRequestDto.getRequestor(), result.getRequestor());
@@ -61,7 +58,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestsFromUserTest() throws Exception  {
+    void getRequestsFromUserTest() throws Exception {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.findAllByIdOrderByCreatedDesc(anyLong())).thenReturn(List.of(itemRequest));
         when(itemRepository.findAllByRequestNotNull()).thenReturn(List.of(item));
@@ -74,11 +71,11 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestsFromOtherUserTest() throws Exception  {
+    void getRequestsFromOtherUserTest() throws Exception {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(requestRepository.findAllByIdNotOrderByCreatedDesc(anyLong(),any())).thenReturn(List.of(itemRequest));
+        when(requestRepository.findAllByIdNotOrderByCreatedDesc(anyLong(), any())).thenReturn(List.of(itemRequest));
         when(itemRepository.findAllByRequestNotNull()).thenReturn(List.of(item));
-        List<ItemRequestDtoOut> result = requestService.getRequestsFromOtherUser(user.getId(),0,50);
+        List<ItemRequestDtoOut> result = requestService.getRequestsFromOtherUser(user.getId(), 0, 50);
 
         assertEquals(List.of(itemRequestDtoOut), result);
         verify(userRepository, times(1)).findById(anyLong());
@@ -87,11 +84,11 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestByIdTest() throws Exception  {
+    void getRequestByIdTest() throws Exception {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         when(itemRepository.findAllByRequestId(anyLong())).thenReturn(List.of(item));
-        ItemRequestDtoOut result = requestService.getRequestById(user.getId(),itemRequest.getId());
+        ItemRequestDtoOut result = requestService.getRequestById(user.getId(), itemRequest.getId());
 
         assertEquals(itemRequestDtoOut, result);
         verify(userRepository, times(1)).findById(anyLong());

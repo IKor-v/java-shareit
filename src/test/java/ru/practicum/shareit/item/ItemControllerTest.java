@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -29,6 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ItemController.class)
 class ItemControllerTest {
 
+    private final User user = new User(1L, "Link", "spuderman@man.com");
+    private final ItemDto itemDto = new ItemDto(1L, "Ocarina", "This is time thing", true,
+            UserMapper.toUserDto(user), null, null, null, List.of());
+    private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, null);
+    private final ItemDtoIn itemDtoIn = new ItemDtoIn(1L, "Ocarina", "This is time thing", true, null);
+    private final CommentDtoIn commentDtoIn = new CommentDtoIn(1L, user.getName(), "This is comment", LocalDateTime.now().toString());
     @Autowired
     ObjectMapper mapper;
     @Autowired
@@ -36,23 +41,16 @@ class ItemControllerTest {
     @MockBean
     private ItemServiceImp itemService;
 
-    private final User user = new User(1L, "Link", "spuderman@man.com");
-    private final ItemDto itemDto = new ItemDto(1L, "Ocarina", "This is time thing", true,
-            UserMapper.toUserDto(user), null, null, null, List.of());
-    private final Item item = new Item(1L, "Ocarina", "This is time thing", true, user, null);
-    private final ItemDtoIn itemDtoIn = new ItemDtoIn(1L, "Ocarina", "This is time thing", true, null);
-    private final CommentDtoIn commentDtoIn = new CommentDtoIn(1L, user.getName(), "This is comment", LocalDateTime.now().toString());
-
     @Test
-    void addItemTest() throws Exception  {
+    void addItemTest() throws Exception {
         when(itemService.addItem(user.getId(), itemDtoIn)).thenReturn(itemDtoIn);
 
         mockMvc.perform(post("/items")
                         .header("X-Sharer-User-Id", user.getId())
-                    .content(mapper.writeValueAsString(itemDtoIn))
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON))
+                        .content(mapper.writeValueAsString(itemDtoIn))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemDtoIn.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDtoIn.getName())))
@@ -97,7 +95,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.lastBooking", is(itemDto.getLastBooking())))
                 .andExpect(jsonPath("$.nextBooking", is(itemDto.getNextBooking())))
                 .andExpect(jsonPath("$.comments", is(itemDto.getComments())));
-                //.andExpect(jsonPath("$.owner", is(itemDto.getOwner())));
+        //.andExpect(jsonPath("$.owner", is(itemDto.getOwner())));
     }
 
     @Test
