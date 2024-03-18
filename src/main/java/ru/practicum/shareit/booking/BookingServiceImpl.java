@@ -59,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Не найдено бронирование с id = " + bookingId));
         if (userId.equals(booking.getItem().getOwner().getId())) {
             if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-                throw new RuntimeException("Вы уже подтвердили бронирование");
+                throw new RuntimeException("Вы уже подтвердили бронирование.");
             }
             if (approved) {
                 booking.setStatus(BookingStatus.APPROVED);
@@ -196,7 +196,7 @@ public class BookingServiceImpl implements BookingService {
         if (start.isAfter(end)) {
             message += "Окончание бронирывание не может быть раньше его начала.";
         } else if ((start.isBefore(LocalDateTime.now())) || (end.isBefore(LocalDateTime.now()))) {
-            message += "Нельзя бронировать в прошлое";
+            message += "Нельзя бронировать в прошлое.";
         } else if (start.equals(end)) {
             message += "Врему начала и конца бронирование не должно совпадать.";
         } else {

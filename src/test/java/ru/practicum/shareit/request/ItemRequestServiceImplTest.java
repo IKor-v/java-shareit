@@ -1,11 +1,11 @@
 package ru.practicum.shareit.request;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -15,11 +15,13 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -38,14 +40,12 @@ class ItemRequestServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private BookingRepository bookingRepository;
-    @Mock
     private ItemRequestRepository requestRepository;
     @InjectMocks
     private ItemRequestServiceImpl requestService;
 
     @Test
-    void addRequestTest() throws Exception {
+    void addRequestTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.save(any(ItemRequest.class))).thenReturn(itemRequest);
         ItemRequestDto result = requestService.addRequest(user.getId(), itemRequestDto);
@@ -58,7 +58,24 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestsFromUserTest() throws Exception {
+    void addRequestIsNullTest() {
+        ValidationException exception = Assertions.assertThrows(ValidationException.class,
+                () -> requestService.addRequest(user.getId(), null));
+        assertEquals("Ошибка валидации вещи: переданно пустое тело запроса.", exception.getMessage());
+    }
+
+    @Test
+    void addRequestThenDescriptionIsEmptyTest() {
+        ItemRequestDto itemRequestDto1 = itemRequestDto;
+        itemRequestDto1.setDescription(null);
+        ValidationException exception = Assertions.assertThrows(ValidationException.class,
+                () -> requestService.addRequest(user.getId(), itemRequestDto1));
+        assertEquals("Ошибка валидации вещи: Описание запроса не может быть пустым.", exception.getMessage());
+    }
+
+
+    @Test
+    void getRequestsFromUserTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.findAllByIdOrderByCreatedDesc(anyLong())).thenReturn(List.of(itemRequest));
         when(itemRepository.findAllByRequestNotNull()).thenReturn(List.of(item));
@@ -71,7 +88,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestsFromOtherUserTest() throws Exception {
+    void getRequestsFromOtherUserTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.findAllByIdNotOrderByCreatedDesc(anyLong(), any())).thenReturn(List.of(itemRequest));
         when(itemRepository.findAllByRequestNotNull()).thenReturn(List.of(item));
@@ -84,7 +101,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestByIdTest() throws Exception {
+    void getRequestByIdTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(requestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         when(itemRepository.findAllByRequestId(anyLong())).thenReturn(List.of(item));
@@ -94,5 +111,28 @@ class ItemRequestServiceImplTest {
         verify(userRepository, times(1)).findById(anyLong());
         verify(requestRepository, times(1)).findById(anyLong());
         verify(itemRepository, times(1)).findAllByRequestId(anyLong());
+    }
+
+    @Test
+    void checkPageableInfoTest() {
+        ItemRequestServiceImpl.checkPageableInfo(1, 3);
+        ValidationException exception = Assertions.assertThrows(ValidationException.class,
+                () -> ItemRequestServiceImpl.checkPageableInfo(-1, 3));
+        assertEquals("Переданный неверные данные индекса первого элемента или количество элементов.", exception.getMessage());
+    }
+
+    @Test
+    void getRequestDtoOutTest() {
+        assertEquals(itemRequestDtoOut, ItemRequestServiceImpl.getRequestDtoOut(itemRequest, List.of(item)));
+        assertNull(ItemRequestServiceImpl.getRequestDtoOut(null, List.of(item)));
+    }
+
+    @Test
+    void itemRequestEqualsTest() {
+        ItemRequest itemRequest1 = new ItemRequest();
+        itemRequest1.setId(itemRequest.getId());
+        assertEquals(itemRequest1, itemRequest1);
+        assertEquals(itemRequest1, itemRequest);
+        assertEquals(itemRequest1.hashCode(), itemRequest.hashCode());
     }
 }

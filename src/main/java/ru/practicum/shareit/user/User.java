@@ -1,10 +1,8 @@
 package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,11 +13,9 @@ import javax.persistence.Table;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Entity
 @Table(name = "users", schema = "public")
-@Getter
-@Setter
-@ToString
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,16 +25,10 @@ public class User {
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         return email != null && email.equals(((User) o).getEmail());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }

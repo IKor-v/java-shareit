@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,6 +106,52 @@ public class UserServiceTest {
         verifyNoMoreInteractions(userRepository);
     }
 
+    @Test
+    void addUserWithWrongEmailTest() {
+        UserDto userDto1 = userDto;
+        userDto1.setEmail("");
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> userService.createUser(userDto1));
+        assertEquals("Ошибка валидации пользователя: адрес электронной почты не может быть пустым или без '@'.", exception.getMessage());
+    }
+
+    @Test
+    void addUserWithWrongNameTest() {
+        UserDto userDto1 = userDto;
+        userDto1.setName("");
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> userService.createUser(userDto1));
+        assertEquals("Ошибка валидации пользователя: имя не может быть пустым", exception.getMessage());
+    }
+
+    @Test
+    void updateUserWithEmptyNameAndEmailTest() {
+        Long userId = user.getId();
+
+        when(userRepository.saveAndFlush(user)).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        UserDto userDto1 = userDto;
+        userDto1.setName(null);
+        userDto1.setEmail(null);
+        UserDto userResult = userService.updateUser(userDto1, userId);
+
+        assertEquals(userDto, userResult);
+        verify(userRepository, times(1)).saveAndFlush(user);
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    void updateUserNotExistTest() {
+        RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> userService.updateUser(userDto, user.getId()));
+        assertEquals("Нельзя обновить пользователя, которого не существует.", exception.getMessage());
+    }
+
+    @Test
+    void updateUserExceptionInSaveTest() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> userService.updateUser(userDto, user.getId()));
+        assertEquals("Не удалось обновить данные пользователя, данные не верны", exception.getMessage());
+    }
 
 }
 

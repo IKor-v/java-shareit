@@ -132,7 +132,8 @@ public class ItemServiceImp implements ItemService {
                 .collect(Collectors.toList()));
         if (itemDto.getOwner().getId().equals(userId)) {
             return getLastAndNextBooking((itemDto),
-                    bookingRepository.findByItemIdAndStatusInOrderByStartDesc(itemDto.getId(), Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED)), true);
+                    bookingRepository.findByItemIdAndStatusInOrderByStartDesc(itemDto.getId(),
+                            Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED)), true);
         }
         return itemDto;
     }
@@ -146,7 +147,6 @@ public class ItemServiceImp implements ItemService {
                 .collect(Collectors.toList());
 
         List<ItemDto> result2 = new ArrayList<>();
-
         List<Booking> bookings = bookingRepository.findByStatusInOrderByStartDesc(Arrays.asList(BookingStatus.WAITING, BookingStatus.APPROVED));
 
         ItemRequestServiceImpl.checkPageableInfo(from, size);
