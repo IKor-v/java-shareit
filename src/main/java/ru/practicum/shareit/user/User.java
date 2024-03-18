@@ -31,4 +31,9 @@ public class User {
         if (!(o instanceof User)) return false;
         return email != null && email.equals(((User) o).getEmail());
     }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
