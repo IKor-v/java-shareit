@@ -57,15 +57,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getAllMyItem(@RequestHeader(headerUserId) long userId) {
-        Collection<ItemDto> result = itemService.getAllMyItem(userId);
+    public Collection<ItemDto> getAllMyItem(@RequestHeader(headerUserId) long userId,
+                                            @RequestParam(required = false, defaultValue = "0") Integer from,
+                                            @RequestParam(required = false, defaultValue = "50") Integer size) {
+        Collection<ItemDto> result = itemService.getAllMyItem(userId, from, size);
         log.info("Просмотр всех вещей пользователя с id = " + userId);
         return result;
     }
 
     @GetMapping(value = "/search") // items/search?text={text}
-    public Collection<ItemDto> searchForText(@RequestParam String text) {
-        return itemService.searchForText(text);
+    public Collection<ItemDto> searchForText(@RequestParam String text,
+                                             @RequestParam(required = false, defaultValue = "0") Integer from,
+                                             @RequestParam(required = false, defaultValue = "50") Integer size) {
+        return itemService.searchForText(text, from, size);
     }
 
     @PostMapping(value = "/{itemId}/comment")  //POST /items/{itemId}/comment

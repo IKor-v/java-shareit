@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.user.User;
@@ -15,6 +17,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "comments", schema = "public")
 @Getter
@@ -29,8 +33,10 @@ public class Comment {
     @Column(name = "created")
     private LocalDateTime created;
     @OneToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private User author;
     @OneToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Item item;
 
     @Override

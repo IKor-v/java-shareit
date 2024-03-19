@@ -51,15 +51,21 @@ public class BookingController {
     }
 
     @GetMapping   //GET /bookings?state={state}
-    public Collection<BookingDtoOut> getAllBookingByBooker(@RequestHeader(headerUserId) long userId, @RequestParam(required = false, defaultValue = "ALL") String state) {
-        Collection<BookingDtoOut> result = bookingService.getAllBookingByBooker(userId, state);
+    public Collection<BookingDtoOut> getAllBookingByBooker(@RequestHeader(headerUserId) long userId,
+                                                           @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                           @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                           @RequestParam(required = false, defaultValue = "50") Integer size) {
+        Collection<BookingDtoOut> result = bookingService.getAllBookingByBooker(userId, state, from, size);
         log.info("Просмотрен список всех бронирований пользователя с id =" + userId);
         return result;
     }
 
     @GetMapping("/owner")  //GET /bookings/owner?state={state}
-    public Collection<BookingDtoOut> getAllBookingByOwner(@RequestHeader(headerUserId) long userId, @RequestParam(required = false, defaultValue = "ALL") String state) {
-        Collection<BookingDtoOut> result = bookingService.getAllBookingByOwner(userId, state);
+    public Collection<BookingDtoOut> getAllBookingByOwner(@RequestHeader(headerUserId) long userId,
+                                                          @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                          @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                          @RequestParam(required = false, defaultValue = "50") Integer size) {
+        Collection<BookingDtoOut> result = bookingService.getAllBookingByOwner(userId, state, from, size);
         log.info("Просмотрен список бронирований для всех вещей пользователя с id = " + userId);
         return result;
     }

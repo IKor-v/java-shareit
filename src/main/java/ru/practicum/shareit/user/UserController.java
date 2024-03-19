@@ -16,7 +16,7 @@ import ru.practicum.shareit.groupvalid.UpdateInfo;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.ValidationException;
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<UserDto> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
 

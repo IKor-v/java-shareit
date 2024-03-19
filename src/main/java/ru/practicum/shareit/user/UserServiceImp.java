@@ -9,7 +9,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
 import javax.validation.ValidationException;
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,9 +25,7 @@ public class UserServiceImp implements UserService {
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
-        if (!validationUser(userDto)) {
-            throw new ValidationException("Не удалось добавить пользователя: " + userDto.toString());
-        }
+        validationUser(userDto);
         try {
             return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
         } catch (Exception e) {
@@ -45,9 +43,7 @@ public class UserServiceImp implements UserService {
         if (userDto.getEmail() == null) {
             userDto.setEmail(oldUser.getEmail());
         }
-        if (!validationUser(userDto)) {
-            throw new ValidationException("Не удалось обновить данные пользователя");
-        }
+        validationUser(userDto);
         try {
             return UserMapper.toUserDto(userRepository.saveAndFlush(UserMapper.toUser(userDto, userId)));
         } catch (Exception e) {
@@ -71,12 +67,12 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public Collection<UserDto> getAllUsers() {
-        return userRepository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());  //поставить ограничения
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
 
-    private boolean validationUser(UserDto userDto) throws ValidationException {
+    private void validationUser(UserDto userDto) throws ValidationException {
         String message = "Ошибка валидации пользователя: ";
         if (userDto == null) {
             message += "переданно пустое тело.";
@@ -87,7 +83,7 @@ public class UserServiceImp implements UserService {
         } else if (userDto.getName().isBlank()) {
             message += "имя не может быть пустым";
         } else {
-            return true;
+            return;
         }
         throw new ValidationException(message);
     }
