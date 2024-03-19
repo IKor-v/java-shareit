@@ -33,8 +33,10 @@ public class Comment {
     @Column(name = "created")
     private LocalDateTime created;
     @OneToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private User author;
     @OneToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Item item;
 
     @Override

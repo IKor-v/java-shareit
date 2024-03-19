@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -178,7 +179,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByBookerIfStateAllTest() {
-        when(bookingRepository.findByBookerIdOrderByStartDesc(anyLong(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByBookerIdOrderByStartDesc(anyLong(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByBooker(user.getId(), "ALL", 0, 10);
@@ -198,7 +199,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByBookerIfStateCURRENTTest() {
-        when(bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(anyLong(), any(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(anyLong(), any(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByBooker(user.getId(), "CURRENT", 0, 10);
@@ -211,7 +212,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByBookerIfStatePASTTest() {
-        when(bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByBooker(user.getId(), "PAST", 0, 10);
@@ -224,7 +225,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByBookerIfStateFUTURETest() {
-        when(bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByBooker(user.getId(), "FUTURE", 0, 10);
@@ -237,7 +238,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByBookerIfStateWAITINGTest() {
-        when(bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByBooker(user.getId(), "WAITING", 0, 10);
@@ -250,7 +251,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByBookerIfStateREJECTEDTest() {
-        when(bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByBookerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByBooker(user.getId(), "REJECTED", 0, 10);
@@ -264,7 +265,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwnerIfStateAllTest() {
-        when(bookingRepository.findByItemOwnerIdOrderByStartDesc(anyLong(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemOwnerIdOrderByStartDesc(anyLong(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByOwner(user.getId(), "ALL", 0, 10);
@@ -284,7 +285,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwnerIfStateCURRENTTest() {
-        when(bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByOwner(user.getId(), "CURRENT", 0, 10);
@@ -297,7 +298,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwnerIfStatePASTTest() {
-        when(bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByOwner(user.getId(), "PAST", 0, 10);
@@ -310,7 +311,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwnerIfStateFUTURETest() {
-        when(bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByOwner(user.getId(), "FUTURE", 0, 10);
@@ -323,7 +324,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwnerIfStateWAITINGTest() {
-        when(bookingRepository.findByItemOwnerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemOwnerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByOwner(user.getId(), "WAITING", 0, 10);
@@ -336,7 +337,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByOwnerIfStateREJECTEDTest() {
-        when(bookingRepository.findByItemOwnerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(List.of(booking));
+        when(bookingRepository.findByItemOwnerIdAndStatusIsOrderByStartDesc(anyLong(), any(), any())).thenReturn(new PageImpl<>(List.of(booking)));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
         List<BookingDtoOut> result = bookingService.getAllBookingByOwner(user.getId(), "REJECTED", 0, 10);

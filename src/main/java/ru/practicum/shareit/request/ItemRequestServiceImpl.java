@@ -1,9 +1,11 @@
 package ru.practicum.shareit.request;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDtoIn;
@@ -16,12 +18,12 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.ValidationException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final UserRepository userRepository;
@@ -55,9 +57,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    @Transactional
     public ItemRequestDto addRequest(long userId, ItemRequestDto itemRequestDto) {
         validationBooking(itemRequestDto);
-        itemRequestDto.setCreated(LocalDateTime.now());
         User requestor = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id =" + userId));
         return ItemRequestMapper.toItemRequestDto(requestRepository.save(ItemRequestMapper.toItemRequest(itemRequestDto, requestor)));
     }
@@ -80,7 +82,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         Pageable pageable = PageRequest.of(from / size, size);
 
-        List<ItemRequest> result = requestRepository.findAllByIdNotOrderByCreatedDesc(userId, pageable);
+        Page<ItemRequest> result = requestRepository.findAllByIdNotOrderByCreatedDesc(userId, pageable);
         List<Item> allItem = itemRepository.findAllByRequestNotNull();
         return result.stream()
                 .map(itemRequest -> getRequestDtoOut(itemRequest, allItem))

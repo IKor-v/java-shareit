@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -151,7 +152,7 @@ public class ItemServiceImp implements ItemService {
 
         ItemRequestServiceImpl.checkPageableInfo(from, size);
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Item> result = itemRepository.findByOwnerId(user.getId(), pageable);
+        Page<Item> result = itemRepository.findByOwnerId(user.getId(), pageable);
         List<ItemDto> result1 = result.stream()
                 .map(ItemMapper::toItemDto)
                 .map(itemDto -> getLastAndNextBooking(itemDto, bookings, false))

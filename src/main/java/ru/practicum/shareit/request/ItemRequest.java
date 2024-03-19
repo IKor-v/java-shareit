@@ -32,6 +32,7 @@ public class ItemRequest {
     @Column(name = "description", nullable = false)
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private User requestor;
     private LocalDateTime created = LocalDateTime.now(); //временно
 

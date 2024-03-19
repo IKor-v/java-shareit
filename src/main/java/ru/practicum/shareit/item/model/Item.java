@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
@@ -18,7 +19,9 @@ import javax.persistence.Table;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "items", schema = "public")
 public class Item {
@@ -35,6 +38,7 @@ public class Item {
     @ToString.Exclude
     private User owner;
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private ItemRequest request;
 
     @Override

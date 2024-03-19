@@ -28,34 +28,34 @@ public class ItemRequestController {
     }
 
     @PostMapping
-        //POST /requests
-    ItemRequestDto addRequest(@RequestHeader(headerUserId) Long userId, @RequestBody ItemRequestDto itemRequestDto) {
+    //POST /requests
+    public ItemRequestDto addRequest(@RequestHeader(headerUserId) Long userId, @RequestBody ItemRequestDto itemRequestDto) {
         ItemRequestDto result = requestService.addRequest(userId, itemRequestDto);
         log.info("Добавлен запрос вещи с id = " + result.getId());
         return result;
     }
 
     @GetMapping
-        //GET /requests
-    List<ItemRequestDtoOut> getRequestsFromUser(@RequestHeader(headerUserId) Long userId) {
+    //GET /requests
+    public List<ItemRequestDtoOut> getRequestsFromUser(@RequestHeader(headerUserId) Long userId) {
         List<ItemRequestDtoOut> result = requestService.getRequestsFromUser(userId);
         log.info("Получен список личных запросов");
         return result;
     }
 
     @GetMapping("/all")
-        //GET /requests/all?from={from}&size={size}
-    List<ItemRequestDtoOut> getRequestsFromOtherUser(@RequestHeader(headerUserId) long userId,
-                                                     @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                     @RequestParam(required = false, defaultValue = "50") Integer size) {
+    //GET /requests/all?from={from}&size={size}
+    public List<ItemRequestDtoOut> getRequestsFromOtherUser(@RequestHeader(headerUserId) long userId,
+                                                            @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                            @RequestParam(required = false, defaultValue = "50") Integer size) {
         List<ItemRequestDtoOut> result = requestService.getRequestsFromOtherUser(userId, from, size);
         log.info("Получен список чужих запросов");
         return result;
     }
 
     @GetMapping("/{requestId}")
-        //GET /requests/{requestId}
-    ItemRequestDtoOut getRequestById(@RequestHeader(headerUserId) long userId, @PathVariable Long requestId) {
+    //GET /requests/{requestId}
+    public ItemRequestDtoOut getRequestById(@RequestHeader(headerUserId) long userId, @PathVariable Long requestId) {
         ItemRequestDtoOut result = requestService.getRequestById(userId, requestId);
         log.info("Просмотрен запрос с id = " + result.getId());
         return result;

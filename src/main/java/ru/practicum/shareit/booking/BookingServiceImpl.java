@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -95,7 +96,7 @@ public class BookingServiceImpl implements BookingService {
         } catch (RuntimeException e) {
             throw new RuntimeException("Unknown state: UNSUPPORTED_STATUS");
         }
-        List<Booking> result = null;
+        Page<Booking> result = null;
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
 
         ItemRequestServiceImpl.checkPageableInfo(from, size);
@@ -144,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
         } catch (RuntimeException e) {
             throw new RuntimeException("Unknown state: UNSUPPORTED_STATUS");
         }
-        List<Booking> result = null;
+        Page<Booking> result = null;
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с id = " + userId));
 
         ItemRequestServiceImpl.checkPageableInfo(from, size);

@@ -1,12 +1,10 @@
 package ru.practicum.shareit.request;
 
-import org.springframework.stereotype.Service;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 
 import java.util.List;
 
-@Service
 public interface ItemRequestService {
     ItemRequestDto addRequest(long userId, ItemRequestDto itemRequestDto);
 

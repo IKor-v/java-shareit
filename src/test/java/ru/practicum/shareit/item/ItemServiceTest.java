@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -205,7 +206,7 @@ public class ItemServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(commentRepository.findByItemOwnerIdOrderById(anyLong())).thenReturn(List.of(comment));
         when(bookingRepository.findByStatusInOrderByStartDesc(any())).thenReturn(List.of());
-        when(itemRepository.findByOwnerId(anyLong(), any())).thenReturn(List.of(item));
+        when(itemRepository.findByOwnerId(anyLong(), any())).thenReturn(new PageImpl<>(List.of(item)));
         List<ItemDto> itemDtoResult = itemService.getAllMyItem(1, 0, 10);
         ItemDto itemDto1 = itemDto;
         itemDto1.setComments(List.of(CommentMapper.toCommentDto(comment)));
@@ -219,7 +220,7 @@ public class ItemServiceTest {
 
     @Test
     void searchForTextTest() {
-        when(itemRepository.findByAvailableTrueAndDescriptionContainingIgnoreCase(anyString(), any())).thenReturn(List.of(item));
+        when(itemRepository.findByAvailableTrueAndDescriptionContainingIgnoreCase(anyString(), any())).thenReturn(new PageImpl<>(List.of(item)));
 
         List<ItemDto> itemDtoResult = itemService.searchForText("Text", 0, 10);
         assertEquals(List.of(itemDto), itemDtoResult);

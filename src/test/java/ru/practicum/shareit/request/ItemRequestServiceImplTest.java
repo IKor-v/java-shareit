@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -90,7 +91,7 @@ class ItemRequestServiceImplTest {
     @Test
     void getRequestsFromOtherUserTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(requestRepository.findAllByIdNotOrderByCreatedDesc(anyLong(), any())).thenReturn(List.of(itemRequest));
+        when(requestRepository.findAllByIdNotOrderByCreatedDesc(anyLong(), any())).thenReturn(new PageImpl<>(List.of(itemRequest)));
         when(itemRepository.findAllByRequestNotNull()).thenReturn(List.of(item));
         List<ItemRequestDtoOut> result = requestService.getRequestsFromOtherUser(user.getId(), 0, 50);
 
