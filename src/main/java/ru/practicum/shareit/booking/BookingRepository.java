@@ -1,36 +1,39 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    Collection<Booking> findByBookerIdOrderByStartDesc(Long id);
+    Page<Booking> findByBookerIdOrderByStartDesc(Long id, Pageable pageable);
 
-    Collection<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime now);
+    Page<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime now, Pageable pageable);
 
-    Collection<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime now);
+    Page<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime now, Pageable pageable);
 
-    Collection<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(Long id, LocalDateTime start, LocalDateTime end);
+    Page<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(Long id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    Collection<Booking> findByBookerIdAndStatusIsOrderByStartDesc(Long id, BookingStatus status);
+    Page<Booking> findByBookerIdAndStatusIsOrderByStartDesc(Long id, BookingStatus status, Pageable pageable);
 
-    Collection<Booking> findByItemOwnerIdOrderByStartDesc(Long id);
+    Page<Booking> findByItemOwnerIdOrderByStartDesc(Long id, Pageable pageable);
 
-    Collection<Booking> findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long userId, LocalDateTime start, LocalDateTime end);
+    Page<Booking> findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long userId, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    Collection<Booking> findByItemOwnerIdAndEndBeforeOrderByStartDesc(Long userId, LocalDateTime end);
+    Page<Booking> findByItemOwnerIdAndEndBeforeOrderByStartDesc(Long userId, LocalDateTime end, Pageable pageable);
 
-    Collection<Booking> findByItemOwnerIdAndStartAfterOrderByStartDesc(Long userId, LocalDateTime start);
+    Page<Booking> findByItemOwnerIdAndStartAfterOrderByStartDesc(Long userId, LocalDateTime start, Pageable pageable);
 
-    Collection<Booking> findByItemIdAndStatusInOrderByStartDesc(long itemId, Collection<BookingStatus> status);
+    List<Booking> findByItemIdAndStatusInOrderByStartDesc(long itemId, Collection<BookingStatus> status);
 
     Booking findFirstByItemIdAndBookerIdAndStatusIsOrderByStartAsc(long itemId, long userId, BookingStatus status);
 
-    Collection<Booking> findByItemOwnerIdAndStatusIsOrderByStartDesc(Long userId, BookingStatus status);
+    Page<Booking> findByItemOwnerIdAndStatusIsOrderByStartDesc(Long userId, BookingStatus status, Pageable pageable);
 
-    Collection<Booking> findByStatusInOrderByStartDesc(List<BookingStatus> statusList);
+    List<Booking> findByStatusInOrderByStartDesc(List<BookingStatus> statusPage);
 }
