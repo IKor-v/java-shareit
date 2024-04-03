@@ -37,6 +37,6 @@ services:
       - POSTGRES_DB=later
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - TZ=Europe/Moscow
+      #- TZ=Europe/Moscow
     volumes:
       - /var/lib/postgresql/data/
